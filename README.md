@@ -24,6 +24,8 @@ Simply. Build the project, and move your NPA file over the exe, it will decompil
 
 Enjoy
 
+# Copyright
+
 Copyright (c) 2015 Davide Iuffrida
 
 License: Academic Free License ("AFL") v. 3.0
