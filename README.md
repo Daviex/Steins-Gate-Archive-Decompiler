@@ -1,11 +1,11 @@
 # Steins-Gate-Archive-Decompiler
 
 ___________________________________
-|   Original Tool Made by Nagato  |
+|   Italian Steins;Gate VN Team   |
 |---------------------------------|
 |     New Tool Made by Daviex     |
 |---------------------------------|
-|   Italian Steins;Gate VN Team   |
+|   Original Tool Made by Nagato  |
 |---------------------------------|
 |        Version 1.2 Alpha        |
 |---------------------------------|
@@ -19,3 +19,8 @@ This tools was re-created from the original one made by Nagato to works with Jus
 This tools was made for the Italian Steins;Gate Project!
 
 If you use it, just mention where you took it from!
+
+# How it works?
+Simply. Build the project, and move your NPA file over the exe, it will decompile inside the same folder the file.
+
+Enjoy
