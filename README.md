@@ -1,11 +1,15 @@
 # Steins-Gate-Archive-Decompiler
-
 ___________________________________
 |   Italian Steins;Gate VN Team   |
+|---------------------------------|
 |     New Tool Made by Daviex     |
+|---------------------------------|
 |   Original Tool Made by Nagato  |
+|---------------------------------|
 |        Version 1.2 Alpha        |
+|---------------------------------|
 |            CodeName:            |
+|---------------------------------|
 |         El Psy Congrue          |
 |_________________________________|
 
