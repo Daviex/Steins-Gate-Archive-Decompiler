@@ -14,4 +14,8 @@ ___________________________________
 |         El Psy Congrue          |
 |_________________________________|
 
-This tools was edit from the original one made by Nagato to works with Just USA edition.
+This tools was re-created from the original one made by Nagato to works with Just USA edition of the game.
+
+This tools was made for the Italian Steins;Gate Project!
+
+If you use it, just mention where you took it from!
