@@ -24,6 +24,9 @@ Simply. Build the project, and move your NPA file over the exe, it will decompil
 
 Enjoy
 
+# Link to Project Forum
+http://steinsgatevn.forumcommunity.net/
+
 # Copyright
 
 Copyright (c) 2015 Davide Iuffrida
