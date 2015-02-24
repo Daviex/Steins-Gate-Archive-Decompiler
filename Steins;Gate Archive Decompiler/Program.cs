@@ -21,6 +21,8 @@ namespace Steins_Gate_Translation_Tool
         static void Main(string[] args)
         {
             Console.WriteLine("###################################");
+            Console.WriteLine("#     NPA Archives Decompiler     #");
+            Console.WriteLine("###################################");
             Console.WriteLine("#   Original Tool Made by Nagato  #");
             Console.WriteLine("###################################");
             Console.WriteLine("#     New Tool Made by Daviex     #");
