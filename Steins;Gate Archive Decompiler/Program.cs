@@ -119,8 +119,8 @@ namespace Steins_Gate_Translation_Tool
 
                 fileName = Encoding.Unicode.GetString(header, bufferOffset+4, fileNameLen);
 
-                Console.WriteLine("[+]" + fileName + "\tOffset[" + offset.ToString("X") + "]\tSize[" + size.ToString("X") + "]");
-                sw.WriteLine("[+]" + fileName + "\tOffset[" + offset.ToString("X") + "]\tSize[" + size.ToString("X") + "]");
+                Console.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", fileName, offset.ToString("X"), size.ToString("X"));
+                sw.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", fileName, offset.ToString("X"), size.ToString("X"));
 
                 ExtractData(fileName, size, offset);
 
