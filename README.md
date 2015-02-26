@@ -12,7 +12,7 @@ ___________________________________
 |---------------------------------|
 |            CodeName:            |
 |---------------------------------|
-|         El Psy Congrue          |
+|         El Psy Congroo          |
 |_________________________________|
 
 This tools was re-created from the original one made by Nagato to works with Just USA edition of the game.
