@@ -33,7 +33,7 @@ namespace Steins_Gate_Translation_Tool
             Console.WriteLine("###################################");
             Console.WriteLine("#            CodeName:            #");
             Console.WriteLine("###################################");
-            Console.WriteLine("#         El Psy Congrue          #");
+            Console.WriteLine("#         El Psy Congroo          #");
             Console.WriteLine("###################################");
             Console.WriteLine();
             Console.WriteLine("Press any key to start...");
