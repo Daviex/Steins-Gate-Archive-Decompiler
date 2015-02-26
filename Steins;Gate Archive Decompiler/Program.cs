@@ -20,23 +20,27 @@ namespace Steins_Gate_Translation_Tool
 
         static void Main(string[] args)
         {
-            Console.WriteLine("###################################");
-            Console.WriteLine("#     NPA Archives Decompiler     #");
-            Console.WriteLine("###################################");
-            Console.WriteLine("#   Original Tool Made by Nagato  #");
-            Console.WriteLine("###################################");
-            Console.WriteLine("#     New Tool Made by Daviex     #");
-            Console.WriteLine("###################################");
-            Console.WriteLine("#   Italian Steins;Gate VN Team   #");
-            Console.WriteLine("###################################");
-            Console.WriteLine("#        Version 1.2 Alpha        #");
-            Console.WriteLine("###################################");
-            Console.WriteLine("#            CodeName:            #");
-            Console.WriteLine("###################################");
-            Console.WriteLine("#         El Psy Congroo          #");
-            Console.WriteLine("###################################");
-            Console.WriteLine();
-            Console.WriteLine("Press any key to start...");
+            Console.WriteLine(
+                @"
+                      
+                      ###################################
+                      #     NPA Archives Decompiler     #
+                      ###################################
+                      #   Original Tool Made by Nagato  #
+                      ###################################
+                      #     New Tool Made by Daviex     #
+                      ###################################
+                      #   Italian Steins;Gate VN Team   #
+                      ###################################
+                      #           Version 1.5           #
+                      ###################################
+                      #            Codename:            #
+                      ###################################
+                      #         El Psy Congroo          #
+                      ###################################
+                      
+                           Press any key to start...    
+                                                         ");
             Console.ReadLine();
 
             if (args.Length == 0)
