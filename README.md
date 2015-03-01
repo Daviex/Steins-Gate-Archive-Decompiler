@@ -1,4 +1,4 @@
-# Steins-Gate-Archive-Decompiler
+# Steins;Gate Archive Decompiler
 ___________________________________
 |     NPA Archives Decompiler     |
 |---------------------------------|
