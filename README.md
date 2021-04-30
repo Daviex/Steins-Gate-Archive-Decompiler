@@ -1,14 +1,12 @@
 # Steins;Gate Archive Decompiler
 ___________________________________
-|     NPA Archives Decompiler     |
-|---------------------------------|
-|   Italian Steins;Gate VN Team   |
+|      SG Archives Decompiler     |
 |---------------------------------|
 |     New Tool Made by Daviex     |
 |---------------------------------|
 |   Original Tool Made by Nagato  |
 |---------------------------------|
-|           Version 1.5           |
+|           Version 2.0           |
 |---------------------------------|
 |            CodeName:            |
 |---------------------------------|
@@ -34,14 +32,16 @@ I calculates Pointer and, by using a custom struct, I save all files.
 # How to make it works?
 Move your NPA file over the executable, it will decompile inside the same folder the file.
 
+## Now also MPK formats!
+Added the support for MPK, same as the NPA, just drag over and it will start the extraction.
+
 Enjoy
 
 # Link to Project Forum
 http://steinsgatevn.forumcommunity.net/
 
 # Copyright
-
-Copyright (c) 2015 Davide Iuffrida
+Copyright (c) 2015 - 2021 Davide Iuffrida
 
 License: Academic Free License ("AFL") v. 3.0
 
