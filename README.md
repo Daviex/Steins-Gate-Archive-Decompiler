@@ -2,7 +2,7 @@
 ___________________________________
 |      SG Archives Decompiler     |
 |---------------------------------|
-|     New Tool Made by Daviex     |
+|          Made by Daviex         |
 |---------------------------------|
 |   Original Tool Made by Nagato  |
 |---------------------------------|
