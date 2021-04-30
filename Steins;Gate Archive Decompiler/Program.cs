@@ -12,27 +12,22 @@ using System.Threading.Tasks;
 
 namespace Steins_Gate_Translation_Tool
 {
-    public class Program
-    {
-        private static byte[] key = Encoding.ASCII.GetBytes("BUCKTICK");
-        private static int keyLen = 8;
-        private static BinaryReader br;
+  public class Program
+  {
+    private static byte[] key = Encoding.ASCII.GetBytes("BUCKTICK");
+    private static int keyLen = 8;
 
-        static void Main(string[] args)
-        {
-            Console.WriteLine(
-                @"
+    static void Main(string[] args)
+    {
+      Console.WriteLine(
+          @"
                       
                       ###################################
-                      #     NPA Archives Decompiler     #
+                      #     SG  Archives Decompiler     #
                       ###################################
-                      #   Original Tool Made by Nagato  #
+                      #         Made by Daviex          #
                       ###################################
-                      #     New Tool Made by Daviex     #
-                      ###################################
-                      #   Italian Steins;Gate VN Team   #
-                      ###################################
-                      #           Version 1.5           #
+                      #           Version 2.0           #
                       ###################################
                       #            Codename:            #
                       ###################################
@@ -41,115 +36,208 @@ namespace Steins_Gate_Translation_Tool
                       
                            Press any key to start...    
                                                          ");
-            Console.ReadLine();
+      Console.ReadLine();
 
-            if (args.Length == 0)
-            {
-                Console.WriteLine("You should move the file .npa on me to make it works!");
-                Console.WriteLine("Press a button to close the program.");
-                Console.ReadLine();
-                Environment.Exit(0);
-            }
-            
-            string originalFile = String.Empty;
+      if (args.Length == 0)
+      {
+        Console.WriteLine("You should move the file .npa or .mpk on me to make it works!");
+        Console.WriteLine("Press a button to close the program.");
+        Console.ReadLine();
+        Environment.Exit(0);
+      }
 
-            originalFile = args[0].Substring(args[0].LastIndexOf('\\')+1);
-            br = new BinaryReader(File.OpenRead(originalFile));
+      string originalFile = args[0].Substring(args[0].LastIndexOf('\\') + 1);
 
-            Console.WriteLine("I'm reading your file...");
+      using (BinaryReader br = new BinaryReader(File.OpenRead(args[0])))
+      {
+        Console.WriteLine($"Trying to read from file {originalFile}");
 
-            byte[] header;
-            uint headerLen;
-
-            headerLen = br.ReadUInt32();
-            header = br.ReadBytes((int)headerLen);
-
-            Console.WriteLine("I'm decrypting the header...");
-
-            ScrambleKey(keyLen);
-            DecryptBuffer(keyLen, ref header, (int)headerLen);
-
-            Console.WriteLine("Gnam Gnam, now i want more data!"); ;
-            ParseHeader(header, originalFile);
-
-            Console.WriteLine();
-            Console.WriteLine("I ended, but, remember, the Agency still watch you!");
-            Console.WriteLine("Press a button to close the program.");
-            Console.ReadLine();
-        }
-
-        static public void ScrambleKey(int keylen)
+        //MPK File
+        if (originalFile.ToLower().EndsWith(".mpk"))
         {
-            for (int i = 0; i < keylen; i++)
-                key[i] = (byte)~key[i];
+          Console.WriteLine("Your file is a MPK format / STEAM EDITION");
+
+          //MPK\0
+          string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+          uint headerLen = br.ReadUInt32();
+
+          //Removing the already readed magic and header length
+          byte[] header = br.ReadBytes((int)headerLen - 8);
+
+          Console.WriteLine("Gnam Gnam, now i want more data!"); ;
+          MPK.ParseHeader(br, header, originalFile);
         }
 
-        static public void DecryptBuffer(int keylen, ref byte[] header, int headerlen)
+        //NPA File
+        if (originalFile.ToLower().EndsWith(".npa"))
         {
-            for (int i = 0; i < headerlen; i++)
-                header[i] ^= key[i % keylen];
+          Console.WriteLine("Your file is a NPA format / JAST USA EDITION");
 
-        #if DEBUG
-            BinaryWriter bw = new BinaryWriter(File.Create("derypted.npa"));
-            bw.Write(BitConverter.GetBytes(headerlen));
-            bw.Write(header);
-            bw.Flush();
-            bw.Close();
-        #endif
+          byte[] header;
+          uint headerLen;
 
+          headerLen = br.ReadUInt32();
+          header = br.ReadBytes((int)headerLen);
+
+          Console.WriteLine("I'm decrypting the header...");
+
+          NPA.ScrambleKey(keyLen);
+          NPA.DecryptBuffer(keyLen, ref header, (int)headerLen);
+
+          Console.WriteLine("Gnam Gnam, now i want more data!"); ;
+          NPA.ParseHeader(br, header, originalFile);
         }
+      }
 
-        static public void ParseHeader(byte[] header, string originalFile)
-        {
-            StreamWriter sw = new StreamWriter(File.Create(originalFile + ".log"));
-
-            int bufferOffset = 4;
-
-            int fileCount = BitConverter.ToInt32(header, 0);
-
-            int fileNameLen, size, offset, unk;
-            string fileName = String.Empty; 
-
-            for (int i = 0; i < fileCount; i++)
-            {
-                fileNameLen = BitConverter.ToInt32(header, bufferOffset);
-                size        = BitConverter.ToInt32(header, bufferOffset+fileNameLen+4);
-                offset      = BitConverter.ToInt32(header, bufferOffset+fileNameLen+8);
-                unk         = BitConverter.ToInt32(header, bufferOffset+fileNameLen+12);
-
-                fileName = Encoding.Unicode.GetString(header, bufferOffset+4, fileNameLen);
-
-                Console.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", fileName, offset.ToString("X"), size.ToString("X"));
-                sw.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", fileName, offset.ToString("X"), size.ToString("X"));
-
-                ExtractData(fileName, size, offset);
-
-                bufferOffset += fileNameLen + 16;
-            }
-            sw.Flush();
-            sw.Close();
-        }
-
-        static public void ExtractData(string path, int size, int offset)
-        {
-            int slashPos = path.LastIndexOf('/');            
-            string folder = path.Substring(0, slashPos);
-
-            Directory.CreateDirectory(folder);
-
-            BinaryWriter bw = new BinaryWriter(File.Create(path));
-            byte[] buffer = new byte[size];
-
-            //long oldPos = br.BaseStream.Position; Useless?
-
-            br.BaseStream.Position = offset;
-            buffer = br.ReadBytes(size);
-
-            DecryptBuffer(keyLen, ref buffer, (int)size);
-
-            bw.Write(buffer);
-            bw.Flush();
-            bw.Close();
-        }
+      Console.WriteLine();
+      Console.WriteLine("I ended, but, remember, the Agency still watch you!");
+      Console.WriteLine("Press a button to close the program.");
+      Console.ReadLine();
     }
+
+    #region MPK Format
+
+    public static class MPK
+    {
+      public static void ParseHeader(BinaryReader stream, byte[] header, string originalFile)
+      {
+        StreamWriter sw = new StreamWriter(File.Create(originalFile + ".log"));
+
+        int fileCount = BitConverter.ToInt32(header, 0);
+        int bufferOffset = 0x3C;
+
+        bool firstFile = true;
+
+        int fileNum;
+        long offset, length1, length2;
+        string filename;
+
+        for (int i = 0; i < fileCount; i++)
+        {
+          fileNum = BitConverter.ToInt32(header, bufferOffset);
+          bufferOffset += 0x4;
+          if (fileNum == 0 && !firstFile)
+            break;
+          else 
+            firstFile = true;
+
+          offset = BitConverter.ToInt64(header, bufferOffset);
+          bufferOffset += 0x8;
+          length1 = BitConverter.ToInt64(header, bufferOffset);
+          bufferOffset += 0x8;
+          length2 = BitConverter.ToInt64(header, bufferOffset);
+          bufferOffset += 0x8;
+
+          filename = Encoding.UTF8.GetString(header, bufferOffset, 0xE4).Replace("\0", "");
+          bufferOffset += 0xE4;
+
+          Console.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", filename, offset.ToString("X"), length1.ToString("X"));
+          sw.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", filename, offset.ToString("X"), length1.ToString("X"));
+
+          ExtractData(stream, originalFile, filename, length1, offset);
+        }
+        sw.Flush();
+        sw.Close();
+      }
+
+      public static void ExtractData(BinaryReader stream, string directory, string path, long size, long offset)
+      {
+        int slashPos = path.LastIndexOf('\\');
+        string folder = $"dir_{directory}\\{(slashPos != -1 ? path.Substring(0, slashPos) : "")}";
+
+        Directory.CreateDirectory(folder);
+
+        BinaryWriter bw = new BinaryWriter(File.Create($"dir_{ directory }\\{path}"));
+        byte[] buffer = new byte[size];
+
+        stream.BaseStream.Position = offset;
+        buffer = stream.ReadBytes((int)size);
+
+        bw.Write(buffer);
+        bw.Flush();
+        bw.Close();
+      }
+    }
+
+    #endregion
+
+    #region NPA Format
+
+    public static class NPA
+    {      
+      public static void ScrambleKey(int keylen)
+      {
+        for (int i = 0; i < keylen; i++)
+          key[i] = (byte)~key[i];
+      }
+
+      public static void DecryptBuffer(int keylen, ref byte[] header, int headerlen)
+      {
+        for (int i = 0; i < headerlen; i++)
+          header[i] ^= key[i % keylen];
+
+#if DEBUG
+        BinaryWriter bw = new BinaryWriter(File.Create("derypted.npa"));
+        bw.Write(BitConverter.GetBytes(headerlen));
+        bw.Write(header);
+        bw.Flush();
+        bw.Close();
+#endif
+
+      }
+
+      public static void ParseHeader(BinaryReader stream, byte[] header, string originalFile)
+      {
+        StreamWriter sw = new StreamWriter(File.Create(originalFile + ".log"));
+
+        int bufferOffset = 4;
+
+        int fileCount = BitConverter.ToInt32(header, 0);
+
+        int fileNameLen, size, offset, unk;
+        string fileName = String.Empty;
+
+        for (int i = 0; i < fileCount; i++)
+        {
+          fileNameLen = BitConverter.ToInt32(header, bufferOffset);
+          size = BitConverter.ToInt32(header, bufferOffset + fileNameLen + 4);
+          offset = BitConverter.ToInt32(header, bufferOffset + fileNameLen + 8);
+          unk = BitConverter.ToInt32(header, bufferOffset + fileNameLen + 12);
+
+          fileName = Encoding.Unicode.GetString(header, bufferOffset + 4, fileNameLen);
+
+          Console.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", fileName, offset.ToString("X"), size.ToString("X"));
+          sw.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", fileName, offset.ToString("X"), size.ToString("X"));
+
+          ExtractData(stream, fileName, size, offset);
+
+          bufferOffset += fileNameLen + 16;
+        }
+        sw.Flush();
+        sw.Close();
+      }
+
+      public static void ExtractData(BinaryReader stream, string path, int size, int offset)
+      {
+        int slashPos = path.LastIndexOf('/');
+        string folder = path.Substring(0, slashPos);
+
+        Directory.CreateDirectory(folder);
+
+        BinaryWriter bw = new BinaryWriter(File.Create(path));
+        byte[] buffer = new byte[size];
+
+        stream.BaseStream.Position = offset;
+        buffer = stream.ReadBytes(size);
+
+        DecryptBuffer(keyLen, ref buffer, (int)size);
+
+        bw.Write(buffer);
+        bw.Flush();
+        bw.Close();
+      }
+    }
+
+    #endregion
+  }
 }
