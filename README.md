@@ -1,7 +1,7 @@
 # Steins;Gate Archive Decompiler
 
 | SG Archives Decompiler |  
-| ------------------------------- |  
+| :------------------------------: |  
 | Made by Daviex |  
 | Original Tool Made by Nagato |  
 | Version 2.0 |  
