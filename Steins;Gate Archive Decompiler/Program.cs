@@ -52,22 +52,6 @@ namespace Steins_Gate_Translation_Tool
       {
         Console.WriteLine($"Trying to read from file {originalFile}");
 
-        //MPK File
-        if (originalFile.ToLower().EndsWith(".mpk"))
-        {
-          Console.WriteLine("Your file is a MPK format / STEAM EDITION");
-
-          //MPK\0
-          string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-          uint headerLen = br.ReadUInt32();
-
-          //Removing the already readed magic and header length
-          byte[] header = br.ReadBytes((int)headerLen - 8);
-
-          Console.WriteLine("Gnam Gnam, now i want more data!"); ;
-          MPK.ParseHeader(br, header, originalFile);
-        }
-
         //NPA File
         if (originalFile.ToLower().EndsWith(".npa"))
         {
@@ -87,79 +71,32 @@ namespace Steins_Gate_Translation_Tool
           Console.WriteLine("Gnam Gnam, now i want more data!"); ;
           NPA.ParseHeader(br, header, originalFile);
         }
+        //MPK File
+        else if (originalFile.ToLower().EndsWith(".mpk"))
+        {
+          Console.WriteLine("Your file is a MPK format / STEAM EDITION");
+
+          //MPK\0
+          string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+          uint headerLen = br.ReadUInt32();
+
+          //Removing the already readed magic and header length
+          byte[] header = br.ReadBytes((int)headerLen - 8);
+
+          Console.WriteLine("Gnam Gnam, now i want more data!"); ;
+          MPK.ParseHeader(br, header, originalFile);
+        }
+        else
+        {
+          Console.WriteLine("Unknown file format u passed me");
+        }
       }
 
       Console.WriteLine();
-      Console.WriteLine("I ended, but, remember, the Agency still watch you!");
+      Console.WriteLine("I ended, but, remember, the Agency still watches you!");
       Console.WriteLine("Press a button to close the program.");
       Console.ReadLine();
     }
-
-    #region MPK Format
-
-    public static class MPK
-    {
-      public static void ParseHeader(BinaryReader stream, byte[] header, string originalFile)
-      {
-        StreamWriter sw = new StreamWriter(File.Create(originalFile + ".log"));
-
-        int fileCount = BitConverter.ToInt32(header, 0);
-        int bufferOffset = 0x3C;
-
-        bool firstFile = true;
-
-        int fileNum;
-        long offset, length1, length2;
-        string filename;
-
-        for (int i = 0; i < fileCount; i++)
-        {
-          fileNum = BitConverter.ToInt32(header, bufferOffset);
-          bufferOffset += 0x4;
-          if (fileNum == 0 && !firstFile)
-            break;
-          else 
-            firstFile = true;
-
-          offset = BitConverter.ToInt64(header, bufferOffset);
-          bufferOffset += 0x8;
-          length1 = BitConverter.ToInt64(header, bufferOffset);
-          bufferOffset += 0x8;
-          length2 = BitConverter.ToInt64(header, bufferOffset);
-          bufferOffset += 0x8;
-
-          filename = Encoding.UTF8.GetString(header, bufferOffset, 0xE4).Replace("\0", "");
-          bufferOffset += 0xE4;
-
-          Console.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", filename, offset.ToString("X"), length1.ToString("X"));
-          sw.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", filename, offset.ToString("X"), length1.ToString("X"));
-
-          ExtractData(stream, originalFile, filename, length1, offset);
-        }
-        sw.Flush();
-        sw.Close();
-      }
-
-      public static void ExtractData(BinaryReader stream, string directory, string path, long size, long offset)
-      {
-        int slashPos = path.LastIndexOf('\\');
-        string folder = $"dir_{directory}\\{(slashPos != -1 ? path.Substring(0, slashPos) : "")}";
-
-        Directory.CreateDirectory(folder);
-
-        BinaryWriter bw = new BinaryWriter(File.Create($"dir_{ directory }\\{path}"));
-        byte[] buffer = new byte[size];
-
-        stream.BaseStream.Position = offset;
-        buffer = stream.ReadBytes((int)size);
-
-        bw.Write(buffer);
-        bw.Flush();
-        bw.Close();
-      }
-    }
-
-    #endregion
 
     #region NPA Format
 
@@ -231,6 +168,72 @@ namespace Steins_Gate_Translation_Tool
         buffer = stream.ReadBytes(size);
 
         DecryptBuffer(keyLen, ref buffer, (int)size);
+
+        bw.Write(buffer);
+        bw.Flush();
+        bw.Close();
+      }
+    }
+
+    #endregion
+
+    #region MPK Format
+
+    public static class MPK
+    {
+      public static void ParseHeader(BinaryReader stream, byte[] header, string originalFile)
+      {
+        StreamWriter sw = new StreamWriter(File.Create(originalFile + ".log"));
+
+        int fileCount = BitConverter.ToInt32(header, 0);
+        int bufferOffset = 0x3C;
+
+        bool firstFile = true;
+
+        int fileNum;
+        long offset, length1, length2;
+        string filename;
+
+        for (int i = 0; i < fileCount; i++)
+        {
+          fileNum = BitConverter.ToInt32(header, bufferOffset);
+          bufferOffset += 0x4;
+          if (fileNum == 0 && !firstFile)
+            break;
+          else
+            firstFile = true;
+
+          offset = BitConverter.ToInt64(header, bufferOffset);
+          bufferOffset += 0x8;
+          length1 = BitConverter.ToInt64(header, bufferOffset);
+          bufferOffset += 0x8;
+          length2 = BitConverter.ToInt64(header, bufferOffset);
+          bufferOffset += 0x8;
+
+          filename = Encoding.UTF8.GetString(header, bufferOffset, 0xE4).Replace("\0", "");
+          bufferOffset += 0xE4;
+
+          Console.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", filename, offset.ToString("X"), length1.ToString("X"));
+          sw.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", filename, offset.ToString("X"), length1.ToString("X"));
+
+          ExtractData(stream, originalFile, filename, length1, offset);
+        }
+        sw.Flush();
+        sw.Close();
+      }
+
+      public static void ExtractData(BinaryReader stream, string directory, string path, long size, long offset)
+      {
+        int slashPos = path.LastIndexOf('\\');
+        string folder = $"dir_{directory}\\{(slashPos != -1 ? path.Substring(0, slashPos) : "")}";
+
+        Directory.CreateDirectory(folder);
+
+        BinaryWriter bw = new BinaryWriter(File.Create($"dir_{ directory }\\{path}"));
+        byte[] buffer = new byte[size];
+
+        stream.BaseStream.Position = offset;
+        buffer = stream.ReadBytes((int)size);
 
         bw.Write(buffer);
         bw.Flush();
