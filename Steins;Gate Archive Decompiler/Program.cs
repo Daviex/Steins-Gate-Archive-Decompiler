@@ -75,10 +75,12 @@ namespace Steins_Gate_Translation_Tool
 
           //MPK\0
           string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-          uint headerLen = br.ReadUInt32();
+          br.ReadBytes(0x2);
+          ushort headerVersion = br.ReadUInt16();
+          MPK.fileCount = br.ReadInt32();
 
           //Removing the already readed magic and header length
-          byte[] header = br.ReadBytes((int)headerLen - 8);
+          byte[] header = br.ReadBytes(0x38 + (MPK.fileCount * 0x100));
 
           Console.WriteLine("Gnam Gnam, now i want more data!"); ;
           MPK.ParseHeader(br, header, originalFile);
@@ -181,12 +183,13 @@ namespace Steins_Gate_Translation_Tool
 
     public static class MPK
     {
+      public static int fileCount;
+
       public static void ParseHeader(BinaryReader stream, byte[] header, string originalFile)
       {
         StreamWriter sw = new StreamWriter(File.Create(originalFile + ".log"));
 
-        int fileCount = BitConverter.ToInt32(header, 0);
-        int bufferOffset = 0x3C;
+        int bufferOffset = 0x38;
 
         bool firstFile = true;
 
