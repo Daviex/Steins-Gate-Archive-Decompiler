@@ -14,9 +14,6 @@ namespace Steins_Gate_Translation_Tool
 {
   public class Program
   {
-    private static byte[] key = Encoding.ASCII.GetBytes("BUCKTICK");
-    private static int keyLen = 8;
-
     static void Main(string[] args)
     {
       Console.WriteLine(
@@ -65,8 +62,8 @@ namespace Steins_Gate_Translation_Tool
 
           Console.WriteLine("I'm decrypting the header...");
 
-          NPA.ScrambleKey(keyLen);
-          NPA.DecryptBuffer(keyLen, ref header, (int)headerLen);
+          NPA.ScrambleKey(NPA.keyLen);
+          NPA.DecryptBuffer(NPA.keyLen, ref header, (int)headerLen);
 
           Console.WriteLine("Gnam Gnam, now i want more data!"); ;
           NPA.ParseHeader(br, header, originalFile);
@@ -101,7 +98,10 @@ namespace Steins_Gate_Translation_Tool
     #region NPA Format
 
     public static class NPA
-    {      
+    {
+      public static byte[] key = Encoding.ASCII.GetBytes("BUCKTICK");
+      public static int keyLen = 8;
+
       public static void ScrambleKey(int keylen)
       {
         for (int i = 0; i < keylen; i++)
