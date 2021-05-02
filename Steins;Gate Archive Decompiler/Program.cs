@@ -2,6 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -180,14 +181,26 @@ namespace Steins_Gate_Translation_Tool
     #endregion
 
     #region MPK Format
-
+    
     public static class MPK
     {
+      public struct MpkMeta
+      {
+        public int index;
+        public string name;
+      }
+
       public static int fileCount;
 
       public static void ParseHeader(BinaryReader stream, byte[] header, string originalFile)
       {
+        List<MpkMeta> meta = new List<MpkMeta>();
+
+        var directory = $"dir_{originalFile}";
+        Directory.CreateDirectory(directory);
+
         StreamWriter sw = new StreamWriter(File.Create(originalFile + ".log"));
+        StreamWriter metaJson = new StreamWriter(File.Create($"dir_{originalFile}\\{originalFile}.json"));
 
         int bufferOffset = 0x38;
 
@@ -219,8 +232,14 @@ namespace Steins_Gate_Translation_Tool
           Console.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", filename, offset.ToString("X"), length1.ToString("X"));
           sw.WriteLine("[+]{0}\tOffset[{1}]\tSize[{2}]", filename, offset.ToString("X"), length1.ToString("X"));
 
-          ExtractData(stream, originalFile, filename, length1, offset);
+          meta.Add(new MpkMeta { index = fileNum, name = filename });
+
+          ExtractData(stream, directory, filename, length1, offset);
         }
+        metaJson.Write(JsonConvert.SerializeObject(meta, Formatting.Indented));
+        metaJson.Flush();
+        metaJson.Close();
+
         sw.Flush();
         sw.Close();
       }
@@ -228,11 +247,11 @@ namespace Steins_Gate_Translation_Tool
       public static void ExtractData(BinaryReader stream, string directory, string path, long size, long offset)
       {
         int slashPos = path.LastIndexOf('\\');
-        string folder = $"dir_{directory}\\{(slashPos != -1 ? path.Substring(0, slashPos) : "")}";
+        string folder = $"{directory}\\{(slashPos != -1 ? path.Substring(0, slashPos) : "")}";
 
         Directory.CreateDirectory(folder);
 
-        BinaryWriter bw = new BinaryWriter(File.Create($"dir_{ directory }\\{path}"));
+        BinaryWriter bw = new BinaryWriter(File.Create($"{directory}\\{path}"));
         byte[] buffer = new byte[size];
 
         stream.BaseStream.Position = offset;
